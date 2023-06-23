@@ -1,0 +1,2 @@
+# Track.ly
+Track.ly – basic URL management service, which provides the ability for users to create managed URLs. Managed URL upon visit will perform certain actions (timeout, tracking, access restriction) and then redirect visitor to the target URL.
