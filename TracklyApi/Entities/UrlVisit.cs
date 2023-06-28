@@ -4,12 +4,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace TracklyApi.Entities;
 
-public enum RedirectResults
-{
-    Success = 0,
-    Forbidden
-}
-
 public partial class UrlVisit
 {
     public long Url { get; set; }
@@ -18,11 +12,9 @@ public partial class UrlVisit
 
     public IPAddress IpAddress { get; set; } = null!;
 
-    public string? CountryCode { get; set; }
+    public string CountryCode { get; set; } = null!;
 
     public string? BrowserFingerprint { get; set; }
-
-    public RedirectResults RedirectResult { get; set; }
 
     public virtual ManagedUrl UrlNavigation { get; set; } = null!;
 }
@@ -46,7 +38,6 @@ public class UrlVisitTypeConfiguration : IEntityTypeConfiguration<UrlVisit>
         builder.Property(e => e.CountryCode)
             .HasMaxLength(2);
         builder.Property(e => e.IpAddress);
-        builder.Property(e => e.RedirectResult);
 
         builder.HasOne(d => d.UrlNavigation).WithMany(p => p.UrlVisits)
             .HasForeignKey(d => d.Url)

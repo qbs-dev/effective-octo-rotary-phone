@@ -32,4 +32,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Ip2GeoApi\Ip2GeoApi.csproj" />
+  </ItemGroup>
+
 </Project>

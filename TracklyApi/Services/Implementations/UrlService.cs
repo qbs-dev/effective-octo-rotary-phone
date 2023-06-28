@@ -71,8 +71,7 @@ public class UrlService : IUrlService
         {
             Url = managedUrl.Id,
             VisitTimestamp = visitDate,
-            IpAddress = ipAddress,
-            BrowserFingerprint = redirectRequest.Fingerprint,
+            IpAddress = ipAddress
         };
 
         _context.UrlVisits.Add(newVisit);
@@ -90,9 +89,7 @@ public class UrlService : IUrlService
         return Result.Success(
                 new RedirectResultDto
                 {
-                    MinTimeout = 0,
-                    TargetUrl = managedUrl.TargetUrl,
-                    Result = RedirectResults.Success
+                    TargetUrl = managedUrl.TargetUrl
                 }
             );
     }
@@ -119,7 +116,7 @@ public class UrlService : IUrlService
             return Result.Error(validationResult.ToString(", "));
         }
 
-        var urlEntity = await _context.ManagedUrls.Include(x => x.UrlActions)
+        var urlEntity = await _context.ManagedUrls
             .Where(x => x.Id == url.Id && x.User == userId).FirstOrDefaultAsync();
         if (urlEntity == null)
             return Result.Error("url doesn't exist");
@@ -136,8 +133,8 @@ public class UrlService : IUrlService
     public async Task<Result<UrlDto>> GetUrlDetailsAsync(int userId, long urlId)
     {
         var url = await _context.ManagedUrls.AsNoTracking()
-            .Include(x => x.UrlActions)
-            .Where(x => x.Id == urlId && x.User == userId).FirstOrDefaultAsync();
+            .Where(x => x.Id == urlId && x.User == userId)
+            .FirstOrDefaultAsync();
         return url == null ?
             Result.Error("url doesn't exist") :
             Result.Success(_mapper.Map<UrlDto>(url));

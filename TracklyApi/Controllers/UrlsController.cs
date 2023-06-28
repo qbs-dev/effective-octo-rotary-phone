@@ -1,5 +1,5 @@
-using System;
 using Ardalis.Result.AspNetCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Sieve.Models;
 using TracklyApi.Dtos;
@@ -10,14 +10,15 @@ namespace TracklyApi.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class UrlController : ControllerBase
+public class UrlsController : ControllerBase
 {
     private readonly IUrlService _urlService;
-    public UrlController(IUrlService urlService)
+    public UrlsController(IUrlService urlService)
     {
         _urlService = urlService;
     }
 
+    [Authorize(Policy = "CheckUserId")]
     [HttpGet("user/{userId}")]
     public async Task<ActionResult<PageDto<UrlShortDto>>> GetUrls(int userId, string? filters, string? sorts, int page = 1, int pageSize = 10)
     {
@@ -31,6 +32,7 @@ public class UrlController : ControllerBase
         return this.ToActionResult(await _urlService.GetUrlsAsync(userId, sieveModel));
     }
 
+    [Authorize(Policy = "CheckUserId")]
     [HttpGet("{urlId}/visits")]
     public async Task<ActionResult<PageDto<UrlVisitDto>>> GetUrlVisits(int userId, int urlId,
         string? filters, string? sorts, int page = 1, int pageSize = 10)
@@ -50,24 +52,6 @@ public class UrlController : ControllerBase
     public async Task<ActionResult<UrlDto>> GetUrlDetails(int userId, long urlId)
     {
         return this.ToActionResult(await _urlService.GetUrlDetailsAsync(userId, urlId));
-    }
-
-    [HttpGet("{**newPath}")]
-    public async Task<ActionResult<RedirectResultDto>> PerformRedirectAction(string newPath, string? ipAddress, string? fingerprint)
-    {
-        var result = await _urlService.CompleteRedirectAsync(new RedirectRequestDto
-        {
-            Path = newPath,
-            IpAddressString = ipAddress ?? Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
-            Fingerprint = fingerprint ?? ""
-        });
-
-        if (result.IsSuccess)
-        {
-            return new RedirectResult(result.Value.TargetUrl!);
-        }
-
-        return this.ToActionResult(result);
     }
 
     [HttpPost("create")]

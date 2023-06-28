@@ -7,11 +7,10 @@ public class UrlProfile : Profile
 {
     public UrlProfile()
     {
-        CreateMap<UrlAction, UrlActionDto>().ReverseMap();
-        CreateMap<ManagedUrl, UrlDto>()
-            .ForMember(dest => dest.Actions, opt => opt.MapFrom(src => src.UrlActions));
+        CreateMap<ManagedUrl, UrlDto>();
         CreateMap<ManagedUrl, UrlShortDto>();
-        CreateMap<UrlVisit, UrlVisitDto>();
+        CreateMap<UrlVisit, UrlVisitDto>()
+            .ForMember(dest => dest.IpAddress, opt => opt.MapFrom(src => src.IpAddress.ToString()));
 
         CreateMap<UrlDto, ManagedUrl>();
     }

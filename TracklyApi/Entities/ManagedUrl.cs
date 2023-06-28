@@ -21,8 +21,6 @@ public partial class ManagedUrl
 
     public DateTime CreatedAt { get; set; }
 
-    public virtual ICollection<UrlAction> UrlActions { get; set; } = new List<UrlAction>();
-
     public virtual ICollection<UrlVisit> UrlVisits { get; set; } = new List<UrlVisit>();
 
     public virtual User UserNavigation { get; set; } = null!;

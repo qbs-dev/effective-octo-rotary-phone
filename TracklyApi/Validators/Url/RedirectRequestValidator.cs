@@ -13,8 +13,6 @@ public class RedirectRequestValidator : AbstractValidator<RedirectRequestDto>
         RuleFor(x => x.IpAddressString)
             .MaximumLength(50).WithMessage("ip address can't be longer than 50 symbols")
             .Must(x => IPAddress.TryParse(x, out _)).WithMessage("incorrect ip address format");
-        RuleFor(x => x.Fingerprint)
-            .MaximumLength(128).When(x => x.Fingerprint != null).WithMessage("browser fingerprint can't be longer than 128 symbols");
     }
 
     public bool BeAValidURLPath(string urlPath)

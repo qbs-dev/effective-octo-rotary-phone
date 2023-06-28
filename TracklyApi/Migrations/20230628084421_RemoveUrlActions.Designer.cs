@@ -3,6 +3,7 @@ using System;
 using System.Net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TracklyApi.Entities;
@@ -12,9 +13,11 @@ using TracklyApi.Entities;
 namespace TracklyApi.Migrations
 {
     [DbContext(typeof(TracklyDbContext))]
-    partial class TracklyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230628084421_RemoveUrlActions")]
+    partial class RemoveUrlActions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
