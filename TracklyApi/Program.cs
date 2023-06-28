@@ -1,12 +1,14 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Sieve.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using TracklyApi.Data.Appsettings;
 using TracklyApi.Entities;
 using TracklyApi.Handlers;
 using TracklyApi.Mappings;
@@ -14,8 +16,6 @@ using TracklyApi.Services;
 using TracklyApi.Services.Implementations;
 using TracklyApi.Sieve;
 using TracklyApi.Validators;
-
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -105,14 +105,39 @@ builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.AddTransient<IProfileService, ProfileService>();
 builder.Services.AddTransient<IUrlService, UrlService>();
 
+// Add HTTP clients from config
+var HttpClientOptsArray = builder.Configuration
+    .GetSection("HttpClients").Get<HttpClientOptions[]>();
+if (HttpClientOptsArray != null)
+{
+    foreach (var httpClientOpts in HttpClientOptsArray.AsEnumerable())
+    {
+        Log.Logger.Information($"Adding Http client: {httpClientOpts.Name}");
+
+        builder.Services.AddHttpClient(httpClientOpts.Name, httpClient =>
+        {
+            httpClient.BaseAddress = new Uri(httpClientOpts.Uri);
+        });
+    }
+}
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Add proxy support
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor |
+            ForwardedHeaders.XForwardedProto;
+        options.KnownNetworks.Clear();
+        options.KnownProxies.Clear();
+    });
 
 var app = builder.Build();
 
 app.UseCors(builder => builder.AllowAnyOrigin());
 
-app.UseHttpsRedirection();
+app.UseForwardedHeaders();
 
 app.UseAuthentication();
 app.UseAuthorization();

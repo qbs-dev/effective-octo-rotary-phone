@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Sieve.Models;
 using TracklyApi.Dtos;
 using TracklyApi.Dtos.Url;
+using TracklyApi.Dtos.Url.Stats;
 using TracklyApi.Services;
 
 namespace TracklyApi.Controllers;
@@ -47,6 +48,39 @@ public class UrlsController : ControllerBase
         return this.ToActionResult(await _urlService.GetUrlVisitsAsync(userId, urlId, sieveModel));
     }
 
+    [Authorize(Policy = "CheckUserId")]
+    [HttpGet("{urlId}/stats/country")]
+    public async Task<ActionResult<StatsResponseDto<VisitsByCountryDto>>> GetUrlVisitsByCountry(
+        int userId, long urlId, DateTime? StartDateUtc, DateTime? EndDateUtc, int limit = 10)
+    {
+        var statsRequest = new StatsRequestDto
+        {
+            UrlId = urlId,
+            UserId = userId,
+            Limit = limit,
+            StartDate = StartDateUtc ?? DateTime.UnixEpoch,
+            EndDate = EndDateUtc ?? DateTime.UtcNow
+        };
+
+        return this.ToActionResult(await _urlService.GetUrlVisitsByCountryAsync(statsRequest));
+    }
+
+    [Authorize(Policy = "CheckUserId")]
+    [HttpGet("{urlId}/stats/ip-address")]
+    public async Task<ActionResult<StatsResponseDto<VisitsByIpAddressDto>>> GetUrlVisitsByIpAddress(
+        int userId, long urlId, DateTime? StartDateUtc, DateTime? EndDateUtc, int limit = 10)
+    {
+        var statsRequest = new StatsRequestDto
+        {
+            UrlId = urlId,
+            UserId = userId,
+            Limit = limit,
+            StartDate = StartDateUtc ?? DateTime.UnixEpoch,
+            EndDate = EndDateUtc ?? DateTime.UtcNow
+        };
+
+        return this.ToActionResult(await _urlService.GetUrlVisitsByIpAddressAsync(statsRequest));
+    }
 
     [HttpGet("{urlId}")]
     public async Task<ActionResult<UrlDto>> GetUrlDetails(int userId, long urlId)

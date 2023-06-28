@@ -19,10 +19,11 @@ namespace TracklyApi.Controllers
         [HttpGet("{*newPath:maxlength(64)}")]
         public async Task<ActionResult<RedirectResultDto>> PerformRedirectAction(string newPath)
         {
-            var result = await _urlService.CompleteRedirectAsync(new RedirectRequestDto
+
+            var result = await _urlService.PerformRedirectAsync(new RedirectRequestDto
             {
                 Path = newPath,
-                IpAddressString = Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "",
+                IpAddressString = Request.HttpContext.Connection.RemoteIpAddress!.ToString()
             });
 
             if (result.IsSuccess)

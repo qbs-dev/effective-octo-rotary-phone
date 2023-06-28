@@ -7,6 +7,7 @@ using Sieve.Models;
 using Sieve.Services;
 using TracklyApi.Dtos;
 using TracklyApi.Dtos.Url;
+using TracklyApi.Dtos.Url.Stats;
 using TracklyApi.Entities;
 
 namespace TracklyApi.Services.Implementations;
@@ -18,11 +19,13 @@ public class UrlService : IUrlService
     private readonly IValidator<UrlDto> _urlValidator;
     private readonly IValidator<RedirectRequestDto> _redirectRequestValidator;
     private readonly ILogger<UrlService> _logger;
+    private readonly IHttpClientFactory _httpClientFactory;
 
     public UrlService(TracklyDbContext context, IMapper mapper,
         ISieveProcessor sieve, IValidator<UrlDto> urlValidator,
         IValidator<RedirectRequestDto> redirectRequestValidator,
-        ILogger<UrlService> logger)
+        ILogger<UrlService> logger, IHttpClientFactory httpClientFactory
+        )
     {
         _context = context;
         _mapper = mapper;
@@ -30,6 +33,7 @@ public class UrlService : IUrlService
         _urlValidator = urlValidator;
         _redirectRequestValidator = redirectRequestValidator;
         _logger = logger;
+        _httpClientFactory = httpClientFactory;
     }
 
     public async Task<Result<MessageResponseDto>> CreateUrlAsync(int userId, UrlDto url)
@@ -50,48 +54,6 @@ public class UrlService : IUrlService
         {
             return Result.Error("internal server error");
         }
-    }
-
-    public async Task<Result<RedirectResultDto>> CompleteRedirectAsync(RedirectRequestDto redirectRequest)
-    {
-        DateTime visitDate = DateTime.UtcNow;
-
-        var validationResult = _redirectRequestValidator.Validate(redirectRequest);
-        if (!validationResult.IsValid)
-            return Result.Error(validationResult.ToString(", "));
-
-        IPAddress ipAddress = IPAddress.Parse(redirectRequest.IpAddressString);
-        var managedUrl = await _context.ManagedUrls
-            .Where(x => x.IsActive == true && x.NewPath.Equals(redirectRequest.Path)).FirstOrDefaultAsync();
-
-        if (managedUrl == null)
-            return Result.NotFound();
-
-        UrlVisit newVisit = new UrlVisit
-        {
-            Url = managedUrl.Id,
-            VisitTimestamp = visitDate,
-            IpAddress = ipAddress
-        };
-
-        _context.UrlVisits.Add(newVisit);
-
-        var changedRows = await _context.SaveChangesAsync();
-        if (changedRows >= 1)
-        {
-            _logger.LogInformation($"{redirectRequest.IpAddressString} visited {redirectRequest.Path} at {visitDate}");
-        }
-        else
-        {
-            _logger.LogError($"Can't add visit record: {newVisit}");
-        }
-
-        return Result.Success(
-                new RedirectResultDto
-                {
-                    TargetUrl = managedUrl.TargetUrl
-                }
-            );
     }
 
     public async Task<Result<MessageResponseDto>> DeleteUrlAsync(int userId, long urlId)
@@ -183,6 +145,163 @@ public class UrlService : IUrlService
         {
             PageItems = _mapper.Map<UrlVisitDto[]>(visits),
             TotalCount = visitsCount
+        });
+    }
+
+    public async Task<string> GetCountryByIpAddressAsync(string ipAddress)
+    {
+        _logger.LogInformation($"Getting country code for {ipAddress}");
+        var httpClient = _httpClientFactory.CreateClient("Ip2Geo");
+        var httpResponse = await httpClient.GetAsync($"ip/{ipAddress}");
+
+        string countryCode = httpResponse.IsSuccessStatusCode ?
+            (await httpResponse.Content.ReadFromJsonAsync<string>() ?? "0") :
+            "0";
+
+        _logger.LogInformation($"{ipAddress} - {countryCode}");
+        return countryCode;
+    }
+
+    public async Task<Result<RedirectResultDto>> PerformRedirectAsync(RedirectRequestDto redirectRequest)
+    {
+        DateTime visitDate = DateTime.UtcNow;
+
+        var validationResult = _redirectRequestValidator.Validate(redirectRequest);
+        if (!validationResult.IsValid)
+            return Result.Error(validationResult.ToString(", "));
+
+        IPAddress ipAddress = IPAddress.Parse(redirectRequest.IpAddressString);
+        var managedUrl = await _context.ManagedUrls
+            .Where(x => x.IsActive == true && EF.Functions.ILike(x.NewPath, redirectRequest.Path))
+            .FirstOrDefaultAsync();
+
+        if (managedUrl == null)
+            return Result.NotFound();
+
+        UrlVisit newVisit = new UrlVisit
+        {
+            Url = managedUrl.Id,
+            VisitTimestamp = visitDate,
+            IpAddress = ipAddress
+        };
+
+        _context.UrlVisits.Add(newVisit);
+
+        var changedRows = await _context.SaveChangesAsync();
+        if (changedRows >= 1)
+        {
+            _logger.LogInformation($"{redirectRequest.IpAddressString} visited {redirectRequest.Path} at {visitDate}");
+        }
+        else
+        {
+            _logger.LogError($"Can't add visit record: {newVisit}");
+        }
+
+        return Result.Success(
+                new RedirectResultDto
+                {
+                    TargetUrl = managedUrl.TargetUrl
+                }
+            );
+    }
+
+    public async Task<Result<StatsResponseDto<VisitsByCountryDto>>> GetUrlVisitsByCountryAsync(StatsRequestDto statsRequest)
+    {
+        var url = await _context.ManagedUrls.AsNoTracking()
+            .Where(x => x.Id == statsRequest.UrlId && x.User == statsRequest.UserId)
+            .FirstOrDefaultAsync();
+        if (url == null)
+            Result.Error("url doesn't exist");
+
+        var urlShort = _mapper.Map<UrlShortDto>(url);
+
+        var rankedVisits = await _context.UrlVisits.AsNoTracking()
+            .Where(x => x.Url == statsRequest.UrlId)
+            .Where(x => x.VisitTimestamp >= statsRequest.StartDate
+                && x.VisitTimestamp <= statsRequest.EndDate)
+            .GroupBy(x => x.CountryCode)
+            .Select(
+                g => new VisitsByCountryDto()
+                {
+                    CountryCode = g.Key,
+                    VisitsCount = g.Count()
+                }
+            )
+            .OrderByDescending(g => g.VisitsCount)
+            .ToListAsync();
+
+        if (rankedVisits == null)
+            return Result.Error("can't get statistics");
+
+        var totalVisitsCount = rankedVisits.Count();
+
+        if (statsRequest.Limit > 0 && totalVisitsCount > statsRequest.Limit)
+        {
+            VisitsByCountryDto otherVisits = new()
+            {
+                CountryCode = "others",
+                VisitsCount = rankedVisits
+                    .Skip(5).Sum(x => x.VisitsCount)
+            };
+
+            rankedVisits = rankedVisits.Take(statsRequest.Limit).Append(otherVisits).ToList();
+        }
+
+        return Result.Success(new StatsResponseDto<VisitsByCountryDto>()
+        {
+            Url = urlShort,
+            TotalVisitsCount = totalVisitsCount,
+            Stats = rankedVisits.ToArray()
+        });
+    }
+
+    public async Task<Result<StatsResponseDto<VisitsByIpAddressDto>>> GetUrlVisitsByIpAddressAsync(StatsRequestDto statsRequest)
+    {
+        var url = await _context.ManagedUrls.AsNoTracking()
+            .Where(x => x.Id == statsRequest.UrlId && x.User == statsRequest.UserId)
+            .FirstOrDefaultAsync();
+        if (url == null)
+            Result.Error("url doesn't exist");
+
+        var urlShort = _mapper.Map<UrlShortDto>(url);
+
+        var rankedVisits = await _context.UrlVisits.AsNoTracking()
+            .Where(x => x.Url == statsRequest.UrlId)
+            .Where(x => x.VisitTimestamp >= statsRequest.StartDate
+                && x.VisitTimestamp <= statsRequest.EndDate)
+            .GroupBy(x => x.IpAddress)
+            .Select(
+                g => new VisitsByIpAddressDto()
+                {
+                    IpAddress = g.Key.ToString(),
+                    VisitsCount = g.Count()
+                }
+            )
+            .OrderByDescending(g => g.VisitsCount)
+            .ToListAsync();
+
+        if (rankedVisits == null)
+            return Result.Error("can't get statistics");
+
+        var totalVisitsCount = rankedVisits.Count();
+
+        if (statsRequest.Limit > 0 && totalVisitsCount > statsRequest.Limit)
+        {
+            VisitsByIpAddressDto otherVisits = new()
+            {
+                IpAddress = "others",
+                VisitsCount = rankedVisits
+                    .Skip(5).Sum(x => x.VisitsCount)
+            };
+
+            rankedVisits = rankedVisits.Take(statsRequest.Limit).Append(otherVisits).ToList();
+        }
+
+        return Result.Success(new StatsResponseDto<VisitsByIpAddressDto>()
+        {
+            Url = urlShort,
+            TotalVisitsCount = totalVisitsCount,
+            Stats = rankedVisits.ToArray()
         });
     }
 }
