@@ -7,7 +7,7 @@ public class UserProfile : Profile
 {
     public UserProfile()
     {
-        CreateMap<User, UserDto>().ReverseMap();
+        CreateMap<User, ProfileDto>().ReverseMap();
 
         CreateMap<RegisterDto, User>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(x => 0))
@@ -15,6 +15,6 @@ public class UserProfile : Profile
             .ForMember(dest => dest.RegistrationDate, opt => opt.MapFrom(x => DateTime.UtcNow))
             .ForMember(dest => dest.LastAccessDate, opt => opt.MapFrom(x => DateTime.UnixEpoch));
 
-        CreateMap<ProfileDetailsDto, User>();
+        CreateMap<ProfileBaseDto, User>();
     }
 }

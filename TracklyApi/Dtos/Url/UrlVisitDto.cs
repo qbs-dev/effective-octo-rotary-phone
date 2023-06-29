@@ -1,5 +1,3 @@
-using System.Net;
-
 namespace TracklyApi.Dtos.Url;
 public class UrlVisitDto
 {

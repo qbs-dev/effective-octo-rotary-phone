@@ -16,13 +16,13 @@ public class UrlService : IUrlService
     private readonly TracklyDbContext _context;
     private readonly IMapper _mapper;
     private readonly ISieveProcessor _sieve;
-    private readonly IValidator<UrlDto> _urlValidator;
+    private readonly IValidator<UrlEditRequestDto> _urlEditRequestValidator;
     private readonly IValidator<RedirectRequestDto> _redirectRequestValidator;
     private readonly ILogger<UrlService> _logger;
     private readonly IHttpClientFactory _httpClientFactory;
 
     public UrlService(TracklyDbContext context, IMapper mapper,
-        ISieveProcessor sieve, IValidator<UrlDto> urlValidator,
+        ISieveProcessor sieve, IValidator<UrlEditRequestDto> urlEditRequestValidator,
         IValidator<RedirectRequestDto> redirectRequestValidator,
         ILogger<UrlService> logger, IHttpClientFactory httpClientFactory
         )
@@ -30,23 +30,23 @@ public class UrlService : IUrlService
         _context = context;
         _mapper = mapper;
         _sieve = sieve;
-        _urlValidator = urlValidator;
+        _urlEditRequestValidator = urlEditRequestValidator;
         _redirectRequestValidator = redirectRequestValidator;
         _logger = logger;
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task<Result<MessageResponseDto>> CreateUrlAsync(int userId, UrlDto url)
+    public async Task<Result<MessageResponseDto>> CreateUrlAsync(int userId, UrlEditRequestDto newUrlRequest)
     {
-        var validationResult = _urlValidator.Validate(url);
+        var validationResult = _urlEditRequestValidator.Validate(newUrlRequest);
         if (!validationResult.IsValid)
             return Result.Error(validationResult.ToString(", "));
-        var newUrl = _mapper.Map<UrlDto, ManagedUrl>(url);
+        var newUrl = _mapper.Map<UrlEditRequestDto, ManagedUrl>(newUrlRequest);
         newUrl.User = userId;
 
         _context.ManagedUrls.Add(newUrl);
         var changedRows = await _context.SaveChangesAsync();
-        if (changedRows >= 1)
+        if (changedRows > 0)
         {
             return Result.Success(new MessageResponseDto("successfully added managed url"));
         }
@@ -63,32 +63,32 @@ public class UrlService : IUrlService
             return Result.Error("url doesn't exist");
 
         _context.ManagedUrls.Remove(url);
-        var result = await _context.SaveChangesAsync();
+        var changedRows = await _context.SaveChangesAsync();
 
-        return (result > 0) ?
+        return (changedRows > 0) ?
             Result.Success(new MessageResponseDto("url successfully deleted")) :
             Result.Error("unable to delete url");
     }
 
-    public async Task<Result<UrlDto>> EditUrlDetailsAsync(int userId, UrlDto url)
+    public async Task<Result<UrlDto>> EditUrlDetailsAsync(int userId, UrlEditRequestDto editUrlRequest)
     {
-        var validationResult = _urlValidator.Validate(url);
+        var validationResult = _urlEditRequestValidator.Validate(editUrlRequest);
         if (!validationResult.IsValid)
         {
             return Result.Error(validationResult.ToString(", "));
         }
 
         var urlEntity = await _context.ManagedUrls
-            .Where(x => x.Id == url.Id && x.User == userId).FirstOrDefaultAsync();
+            .Where(x => x.Id == editUrlRequest.Id && x.User == userId).FirstOrDefaultAsync();
         if (urlEntity == null)
             return Result.Error("url doesn't exist");
 
-        _mapper.Map<UrlDto, ManagedUrl>(url, urlEntity);
+        _mapper.Map<UrlEditRequestDto, ManagedUrl>(editUrlRequest, urlEntity);
 
         _context.ManagedUrls.Update(urlEntity);
 
-        var result = await _context.SaveChangesAsync();
-        return result > 0 ? Result.Success(_mapper.Map<UrlDto>(urlEntity))
+        var changedRows = await _context.SaveChangesAsync();
+        return changedRows > 0 ? Result.Success(_mapper.Map<UrlDto>(urlEntity))
             : Result.Error("url details weren't modified");
     }
 
@@ -188,7 +188,7 @@ public class UrlService : IUrlService
         _context.UrlVisits.Add(newVisit);
 
         var changedRows = await _context.SaveChangesAsync();
-        if (changedRows >= 1)
+        if (changedRows > 0)
         {
             _logger.LogInformation($"{redirectRequest.IpAddressString} visited {redirectRequest.Path} at {visitDate}");
         }

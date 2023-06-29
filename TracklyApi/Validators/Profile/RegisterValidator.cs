@@ -4,7 +4,7 @@ using TracklyApi.Dtos.Profile;
 namespace TracklyApi.Validators;
 public class RegisterValidator : AbstractValidator<RegisterDto>
 {
-    public RegisterValidator(ProfileDetailsValidator profileValidator)
+    public RegisterValidator(ProfileBaseValidator profileValidator)
     {
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("email address missing")

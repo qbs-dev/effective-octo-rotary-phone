@@ -8,7 +8,6 @@ using TracklyApi.Dtos.Url.Stats;
 using TracklyApi.Services;
 
 namespace TracklyApi.Controllers;
-
 [Route("api/[controller]")]
 [ApiController]
 public class UrlsController : ControllerBase
@@ -21,7 +20,8 @@ public class UrlsController : ControllerBase
 
     [Authorize(Policy = "CheckUserId")]
     [HttpGet("user/{userId}")]
-    public async Task<ActionResult<PageDto<UrlShortDto>>> GetUrls(int userId, string? filters, string? sorts, int page = 1, int pageSize = 10)
+    public async Task<ActionResult<PageDto<UrlShortDto>>> GetUrls(int userId,
+        string? filters, string? sorts, int page = 1, int pageSize = 10)
     {
         var sieveModel = new SieveModel
         {
@@ -82,24 +82,28 @@ public class UrlsController : ControllerBase
         return this.ToActionResult(await _urlService.GetUrlVisitsByIpAddressAsync(statsRequest));
     }
 
+    [Authorize(Policy = "CheckUserId")]
     [HttpGet("{urlId}")]
     public async Task<ActionResult<UrlDto>> GetUrlDetails(int userId, long urlId)
     {
         return this.ToActionResult(await _urlService.GetUrlDetailsAsync(userId, urlId));
     }
 
+    [Authorize(Policy = "CheckUserId")]
     [HttpPost("create")]
-    public async Task<ActionResult<MessageResponseDto>> CreateUrl(int userId, UrlDto url)
+    public async Task<ActionResult<MessageResponseDto>> CreateUrl(int userId, UrlEditRequestDto newUrlRequest)
     {
-        return this.ToActionResult(await _urlService.CreateUrlAsync(userId, url));
+        return this.ToActionResult(await _urlService.CreateUrlAsync(userId, newUrlRequest));
     }
 
+    [Authorize(Policy = "CheckUserId")]
     [HttpPost("edit")]
-    public async Task<ActionResult<UrlDto>> EditUrlDetails(int userId, UrlDto url)
+    public async Task<ActionResult<UrlDto>> EditUrlDetails(int userId, UrlEditRequestDto editUrlRequest)
     {
-        return this.ToActionResult(await _urlService.EditUrlDetailsAsync(userId, url));
+        return this.ToActionResult(await _urlService.EditUrlDetailsAsync(userId, editUrlRequest));
     }
 
+    [Authorize(Policy = "CheckUserId")]
     [HttpDelete("{urlId}")]
     public async Task<ActionResult<MessageResponseDto>> DeleteUrl(int userId, long urlId)
     {

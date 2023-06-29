@@ -2,9 +2,9 @@ using FluentValidation;
 using TracklyApi.Dtos.Profile;
 
 namespace TracklyApi.Validators;
-public class ProfileDetailsValidator : AbstractValidator<ProfileDetailsDto>
+public class ProfileBaseValidator : AbstractValidator<ProfileBaseDto>
 {
-    public ProfileDetailsValidator()
+    public ProfileBaseValidator()
     {
         RuleFor(x => x.FirstName)
             .NotEmpty().WithMessage("first name missing")

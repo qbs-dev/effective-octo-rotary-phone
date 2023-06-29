@@ -1,5 +1,4 @@
 using Ardalis.Result.AspNetCore;
-using Ardalis.Result;
 using Microsoft.AspNetCore.Mvc;
 using TracklyApi.Dtos;
 using TracklyApi.Services;
@@ -7,7 +6,6 @@ using TracklyApi.Dtos.Profile;
 using Microsoft.AspNetCore.Authorization;
 
 namespace ZappAPI.Controllers;
-
 [Route("api/[controller]")]
 [ApiController]
 public class ProfileController : ControllerBase
@@ -26,16 +24,16 @@ public class ProfileController : ControllerBase
 
     [Authorize(Policy = "CheckUserId")]
     [HttpGet("{userId}")]
-    public async Task<ActionResult<UserDto>> GetProfileDetails(int userId)
+    public async Task<ActionResult<ProfileDto>> GetProfileDetails(int userId)
     {
         return this.ToActionResult(await _profileService.GetProfileDetailsAsync(userId));
     }
 
     [Authorize(Policy = "CheckUserId")]
     [HttpPost("{userId}/edit")]
-    public async Task<ActionResult<UserDto>> EditProfileDetails(int userId, UserDto profileData)
+    public async Task<ActionResult<ProfileDto>> EditProfileDetails(int userId, ProfileBaseDto profileDetails)
     {
-        return this.ToActionResult(await _profileService.EditProfileDetailsAsync(userId, profileData));
+        return this.ToActionResult(await _profileService.EditProfileDetailsAsync(userId, profileDetails));
     }
 
     [Authorize(Policy = "CheckUserId")]

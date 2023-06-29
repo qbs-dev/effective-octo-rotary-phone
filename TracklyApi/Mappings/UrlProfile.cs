@@ -12,6 +12,6 @@ public class UrlProfile : Profile
         CreateMap<UrlVisit, UrlVisitDto>()
             .ForMember(dest => dest.IpAddress, opt => opt.MapFrom(src => src.IpAddress.ToString()));
 
-        CreateMap<UrlDto, ManagedUrl>();
+        CreateMap<UrlEditRequestDto, ManagedUrl>();
     }
 }

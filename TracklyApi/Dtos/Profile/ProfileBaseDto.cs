@@ -1,5 +1,5 @@
 namespace TracklyApi.Dtos.Profile;
-public class ProfileDetailsDto
+public class ProfileBaseDto
 {
     public string FirstName { get; set; } = null!;
     public string? LastName { get; set; }

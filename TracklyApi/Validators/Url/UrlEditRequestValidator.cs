@@ -2,9 +2,9 @@ using FluentValidation;
 using TracklyApi.Dtos.Url;
 
 namespace TracklyApi.Validators;
-public class ManagedUrlValidator : AbstractValidator<UrlDto>
+public class UrlEditRequestValidator : AbstractValidator<UrlEditRequestDto>
 {
-    public ManagedUrlValidator()
+    public UrlEditRequestValidator()
     {
         RuleFor(x => x.NewPath)
             .Length(3, 64).WithMessage("path must be 3-64 symbols long")
