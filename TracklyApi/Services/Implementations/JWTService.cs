@@ -47,6 +47,7 @@ public class JWTService : IJWTService
     public async Task<Result<AuthResponseDto>> GetRefreshAsync(
         int userId, Guid oldRefresh, string fingerprint)
     {
+
         var user = await _context.Users.FindAsync(userId);
         if (user is null)
             return Result.Error("requested profile doesn't exist");
@@ -70,7 +71,7 @@ public class JWTService : IJWTService
             return false;
 
         var refreshSession = await _context.RefreshSessions.Where(
-            x => x.User == userId && x.Fingerprint.Equals(fingerprint)
+            x => x.User == userId && x.Fingerprint.Equals(fingerprint.Value)
         ).FirstOrDefaultAsync();
 
         return refreshSession != null;
