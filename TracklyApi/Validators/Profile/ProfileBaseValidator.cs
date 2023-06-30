@@ -10,8 +10,8 @@ public class ProfileBaseValidator : AbstractValidator<ProfileBaseDto>
             .NotEmpty().WithMessage("first name missing")
             .Length(2, 64).WithMessage("first name must be 2-64 symbols long");
         RuleFor(x => x.MiddleName)
-            .Length(2, 64).When(x => x.MiddleName != null).WithMessage("middle name must be 2-64 symbols long");
+            .Length(2, 64).When(x => x.MiddleName.Length > 0).WithMessage("middle name must be 2-64 symbols long");
         RuleFor(x => x.LastName)
-            .Length(2, 64).When(x => x.LastName != null).WithMessage("last name must be 2-64 symbols long");
+            .Length(2, 64).When(x => x.LastName.Length > 0).WithMessage("last name must be 2-64 symbols long");
     }
 }
