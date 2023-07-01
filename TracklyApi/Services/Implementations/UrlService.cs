@@ -36,11 +36,19 @@ public class UrlService : IUrlService
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task<Result<MessageResponseDto>> CreateUrlAsync(int userId, UrlEditRequestDto newUrlRequest)
+    public async Task<Result<UrlDto>> CreateUrlAsync(int userId, UrlEditRequestDto newUrlRequest)
     {
         var validationResult = _urlEditRequestValidator.Validate(newUrlRequest);
         if (!validationResult.IsValid)
             return Result.Error(validationResult.ToString(", "));
+
+        //check if url with give path already exists
+        var managedUrl = await this.GetUrlByPathAsync(newUrlRequest.NewPath);
+        if (managedUrl != null)
+        {
+            return Result.Error("Url with given path already exists");
+        }
+
         var newUrl = _mapper.Map<UrlEditRequestDto, ManagedUrl>(newUrlRequest);
         newUrl.User = userId;
 
@@ -48,7 +56,7 @@ public class UrlService : IUrlService
         var changedRows = await _context.SaveChangesAsync();
         if (changedRows > 0)
         {
-            return Result.Success(new MessageResponseDto("successfully added managed url"));
+            return Result.Success(_mapper.Map<UrlDto>(newUrl));
         }
         else
         {
@@ -82,6 +90,16 @@ public class UrlService : IUrlService
             .Where(x => x.Id == editUrlRequest.Id && x.User == userId).FirstOrDefaultAsync();
         if (urlEntity == null)
             return Result.Error("url doesn't exist");
+
+        //check if url with give path already exists
+        if (!editUrlRequest.NewPath.Equals(urlEntity.NewPath))
+        {
+            var managedUrl = await this.GetUrlByPathAsync(editUrlRequest.NewPath);
+            if (managedUrl != null)
+            {
+                return Result.Error("Url with given path already exists");
+            }
+        }
 
         _mapper.Map<UrlEditRequestDto, ManagedUrl>(editUrlRequest, urlEntity);
 
@@ -162,6 +180,14 @@ public class UrlService : IUrlService
         return countryCode;
     }
 
+    public async Task<UrlDto?> GetUrlByPathAsync(string urlPath)
+    {
+        var managedUrl = await _context.ManagedUrls
+            .Where(x => x.IsActive == true && EF.Functions.ILike(x.NewPath, urlPath))
+            .FirstOrDefaultAsync();
+        return managedUrl != null ? _mapper.Map<UrlDto>(managedUrl) : null;
+    }
+
     public async Task<Result<RedirectResultDto>> PerformRedirectAsync(RedirectRequestDto redirectRequest)
     {
         DateTime visitDate = DateTime.UtcNow;
@@ -171,10 +197,8 @@ public class UrlService : IUrlService
             return Result.Error(validationResult.ToString(", "));
 
         IPAddress ipAddress = IPAddress.Parse(redirectRequest.IpAddressString);
-        var managedUrl = await _context.ManagedUrls
-            .Where(x => x.IsActive == true && EF.Functions.ILike(x.NewPath, redirectRequest.Path))
-            .FirstOrDefaultAsync();
 
+        var managedUrl = await this.GetUrlByPathAsync(redirectRequest.Path);
         if (managedUrl == null)
             return Result.NotFound();
 

@@ -21,11 +21,11 @@ public class UrlsController : ControllerBase
     [Authorize(Policy = "CheckUserId")]
     [HttpGet("user/{userId}")]
     public async Task<ActionResult<PageDto<UrlShortDto>>> GetUrls(int userId,
-        string? filters, string? sorts, int page = 1, int pageSize = 10)
+     string? sorts, int page = 1, int pageSize = 10)
     {
         var sieveModel = new SieveModel
         {
-            Filters = filters ?? "",
+            Filters = "",
             Sorts = sorts ?? "",
             Page = page,
             PageSize = pageSize
@@ -51,15 +51,15 @@ public class UrlsController : ControllerBase
     [Authorize(Policy = "CheckUserId")]
     [HttpGet("{urlId}/stats/country")]
     public async Task<ActionResult<StatsResponseDto<VisitsByCountryDto>>> GetUrlVisitsByCountry(
-        int userId, long urlId, DateTime? StartDateUtc, DateTime? EndDateUtc, int limit = 10)
+        int userId, long urlId, DateTime? startDateUtc, DateTime? endDateUtc, int limit = 10)
     {
         var statsRequest = new StatsRequestDto
         {
             UrlId = urlId,
             UserId = userId,
             Limit = limit,
-            StartDate = StartDateUtc ?? DateTime.UnixEpoch,
-            EndDate = EndDateUtc ?? DateTime.UtcNow
+            StartDate = startDateUtc ?? DateTime.UnixEpoch,
+            EndDate = endDateUtc ?? DateTime.UtcNow
         };
 
         return this.ToActionResult(await _urlService.GetUrlVisitsByCountryAsync(statsRequest));
@@ -68,15 +68,15 @@ public class UrlsController : ControllerBase
     [Authorize(Policy = "CheckUserId")]
     [HttpGet("{urlId}/stats/ip-address")]
     public async Task<ActionResult<StatsResponseDto<VisitsByIpAddressDto>>> GetUrlVisitsByIpAddress(
-        int userId, long urlId, DateTime? StartDateUtc, DateTime? EndDateUtc, int limit = 10)
+        int userId, long urlId, DateTime? startDateUtc, DateTime? endDateUtc, int limit = 10)
     {
         var statsRequest = new StatsRequestDto
         {
             UrlId = urlId,
             UserId = userId,
             Limit = limit,
-            StartDate = StartDateUtc ?? DateTime.UnixEpoch,
-            EndDate = EndDateUtc ?? DateTime.UtcNow
+            StartDate = startDateUtc ?? DateTime.UnixEpoch,
+            EndDate = endDateUtc ?? DateTime.UtcNow
         };
 
         return this.ToActionResult(await _urlService.GetUrlVisitsByIpAddressAsync(statsRequest));
@@ -91,7 +91,7 @@ public class UrlsController : ControllerBase
 
     [Authorize(Policy = "CheckUserId")]
     [HttpPost("create")]
-    public async Task<ActionResult<MessageResponseDto>> CreateUrl(int userId, UrlEditRequestDto newUrlRequest)
+    public async Task<ActionResult<UrlDto>> CreateUrl(int userId, UrlEditRequestDto newUrlRequest)
     {
         return this.ToActionResult(await _urlService.CreateUrlAsync(userId, newUrlRequest));
     }
