@@ -1,0 +1,52 @@
+<div class="spinner-container" *ngIf="isLoading">
+  <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+</div>
+<div class="container" *ngIf="!isLoading">
+  <mat-card>
+    <h1 class="form-title" *ngIf="!isAdding">Editing url details</h1>
+    <h1 class="form-title" *ngIf="isAdding">Adding new Url</h1>
+    <form class="form-container" [formGroup]="editUrlForm">
+      <div class="horizontal-division">
+        <div class="form-input">
+          <mat-checkbox [formControl]="isActive">
+            {{"Url status: " + (isActive.value ? "active" : "inactive")}}
+          </mat-checkbox>
+        </div>
+      </div>
+      <div class="horizontal-division">
+        <app-url-path-input class="form-input" (UrlPathSelectEvent)="setUrlPath($event)">
+        </app-url-path-input>
+        <mat-form-field class="form-input" appearance="outline">
+          <mat-label>Target url</mat-label>
+          <input matInput [formControl]="targetUrl" required />
+          <mat-error *ngIf="targetUrl.invalid">{{ getErrorMessage(targetUrl) }} </mat-error>
+        </mat-form-field>
+      </div>
+      <div class="horizontal-division">
+        <mat-form-field class="form-input" appearance="outline">
+          <mat-label>Description</mat-label>
+          <textarea matInput [formControl]="description"> </textarea>
+          <mat-error *ngIf="description.invalid">{{ getErrorMessage(description) }} </mat-error>
+        </mat-form-field>
+      </div>
+
+      <mat-dialog-actions class="horizontal-division confirm-container">
+        <div class="delete-action" *ngIf="!isAdding">
+          <mat-checkbox [formControl]="isDeleteConfirmed"></mat-checkbox>
+          <button class="submit" [disabled]="!isDeleteConfirmed.value" mat-raised-button color="warn"
+            (click)="deleteUrl()">
+            {{ 'Delete' | uppercase }}
+          </button>
+        </div>
+        <button class="submit" mat-raised-button color="primary" [disabled]="!this.editUrlForm.valid"
+          (click)="sendForm()">
+          {{ (isAdding ? 'Save' : 'Save') | uppercase }}
+        </button>
+        <button class="submit" mat-raised-button mat-dialog-close color="primary">
+          {{ 'Cancel' | uppercase }}
+        </button>
+      </mat-dialog-actions>
+    </form>
+    <p></p>
+  </mat-card>
+</div>

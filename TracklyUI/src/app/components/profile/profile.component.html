@@ -1,0 +1,34 @@
+<div class="container">
+  <div class="main-header">
+    <h1>User profile</h1>
+    <button *ngIf="!isLoading && !isError" mat-flat-button color="accent" (click)="openEditProfileDetailsDialog()">
+      <mat-icon>
+        edit
+      </mat-icon>
+      Edit
+    </button>
+  </div>
+  <div class="spinner-container" *ngIf="isLoading">
+    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+  </div>
+  <div class="profile-container" *ngIf="!isLoading && !isError">
+    <h3>
+      Full user name: {{getFullName(profile)}}
+    </h3>
+    <h3>
+      Email address: {{profile.email}}
+    </h3>
+    <h3>
+      Email verification status: {{profile.isEmailVerified ? "verified" : "not verified"}}
+    </h3>
+    <h3>
+      Registration date: {{profile.registrationDate | date : 'dd.MM.YYYY HH:mm' : '3' }}
+    </h3>
+    <h3>
+      Last access date: {{profile.lastAccessDate | date : 'dd.MM.YYYY HH:mm' : '3' }}
+    </h3>
+  </div>
+  <mat-card class="info-card fail" *ngIf="!isLoading && isError">
+    <span>Error while loading user profile</span>
+  </mat-card>
+</div>

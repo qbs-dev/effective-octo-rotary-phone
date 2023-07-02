@@ -1,0 +1,24 @@
+<div class="container">
+  <mat-card>
+    <p></p>
+    <h1 class="form-title">Login</h1>
+    <form class="form-container" [formGroup]="loginForm">
+      <mat-form-field appearance="outline">
+        <mat-label>Email address</mat-label>
+        <input matInput placeholder="user@example.com" [formControl]="email" required />
+        <mat-error *ngIf="email.invalid">{{ getErrorMessage(email) }}</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <input matInput [formControl]="password" [type]="'password'" required />
+        <mat-error *ngIf="password.invalid">{{ getErrorMessage(password) }}</mat-error>
+      </mat-form-field>
+      <button class="submit" mat-raised-button color="primary" [disabled]="!this.loginForm.valid" (click)="sendForm()">
+        <span *ngIf="!isSending">{{ 'Login' | uppercase }}</span>
+        <mat-icon *ngIf="isSending"><mat-spinner color="accent" diameter="16"></mat-spinner></mat-icon>
+      </button>
+      <p></p>
+      <a [routerLink]="['/register']">Click here to register</a>
+    </form>
+  </mat-card>
+</div>

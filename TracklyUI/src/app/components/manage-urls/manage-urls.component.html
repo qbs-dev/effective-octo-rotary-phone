@@ -1,0 +1,67 @@
+<div class="container">
+  <div class="page-header">
+    <h1>Url management</h1>
+    <button mat-flat-button color="accent" *ngIf="isLoggedIn()" (click)="openAddUrlDialog()">
+      <mat-icon> add_link </mat-icon>
+      Add new Url
+    </button>
+  </div>
+  <div>
+    <div class="center" *ngIf="!isError">
+      <pagination-controls (pageChange)="changePage($event)" previousLabel="" nextLabel=""
+        id="server"></pagination-controls>
+    </div>
+    <div class="spinner-container" *ngIf="isLoading">
+      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+    </div>
+    <div class="options-container" *ngIf="!isLoading">
+      <mat-button-toggle-group [formControl]="sortingControl" aria-label="Sort by">
+      <mat-button-toggle value="-CreatedAt">
+        Created at <mat-icon>arrow_downward</mat-icon>
+      </mat-button-toggle>
+      <mat-button-toggle value="CreatedAt">
+        Created at <mat-icon>arrow_upward</mat-icon>
+      </mat-button-toggle>
+      <mat-button-toggle value="-TotalClicks">
+        Clicks <mat-icon>arrow_downward</mat-icon>
+      </mat-button-toggle>
+      <mat-button-toggle value="TotalClicks">
+        Clicks <mat-icon>arrow_upward</mat-icon>
+      </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+    <div class="urls-container" *ngIf="!isLoading && !isError">
+      <mat-nav-list *ngIf="urls && urls.length > 0">
+        <div mat-subheader>Managed Urls</div>
+        <mat-list-item  *ngFor="let url of urls |
+                          paginate : {
+                          itemsPerPage: paginationOpts.pageSize,
+                          currentPage: paginationOpts.pageIndex,
+                          totalItems: paginationOpts.totalItems
+                          }"
+                        [routerLink]="['/urls/' + url.id]">
+          <mat-icon matListItemIcon
+            matTooltip="{{getUrlStatusTooltip(url)}}">
+            {{getUrlStatusIcon(url)}}
+          </mat-icon>
+          <div matListItemTitle>{{url.newPath}}</div>
+          <div matListItemLine>{{url.targetUrl}}</div>
+          <div matListItemLine>Total clicks: {{url.totalClicks}}</div>
+
+          <button mat-icon-button [routerLink]="['/urls/' + url.id + '/visits']" matListItemMeta>
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button mat-icon-button [routerLink]="['/urls/' + url.id + '/stats']" matListItemMeta>
+            <mat-icon>analytics</mat-icon>
+          </button>
+        </mat-list-item>
+      </mat-nav-list>
+      <h2 *ngIf="!urls || urls.length == 0">Url list is empty</h2>
+    </div>
+    <div class="absolute-center" *ngIf="!isLoading && isError">
+      <mat-card class="info-card fail">
+        <span>Error while getting managed Urls</span>
+      </mat-card>
+    </div>
+  </div>
+</div>

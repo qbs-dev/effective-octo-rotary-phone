@@ -1,0 +1,13 @@
+<header>
+  <mat-toolbar color="primary">
+    <mat-toolbar-row class="navbar-first-row">
+      <button mat-flat-button matTooltip="Track.ly" color="accent" [routerLink]="['/']">
+        <div class="site-logo">
+          Track.ly
+        </div>
+      </button>
+      <app-header-nav-menu [showMobileMenu]="isMoblieScreen">
+      </app-header-nav-menu>
+    </mat-toolbar-row>
+  </mat-toolbar>
+</header>

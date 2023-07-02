@@ -1,0 +1,71 @@
+<div class="icons">
+  <div class="desktop-icons" *ngIf="!showMobileMenu">
+    <a mat-icon-button matTooltip="About us" aria-label="About us" color="accent" [routerLink]="['/about-us']">
+      <mat-icon>
+        info
+      </mat-icon>
+    </a>
+    <a *ngIf="isLoggedIn()" mat-icon-button matTooltip="Url management" aria-label="Url management" color="accent" [routerLink]="['/urls']">
+      <mat-icon>
+        link
+      </mat-icon>
+    </a>
+    <a *ngIf="isLoggedIn()" mat-icon-button matTooltip="Profile management" aria-label="Profile management" color="accent"
+      [routerLink]="['/profile']">
+      <mat-icon>
+        account_circle
+      </mat-icon>
+    </a>
+    <button *ngIf="!isLoggedIn()" mat-icon-button matTooltip="Login / Register" aria-label="Login / Register"
+      color="accent" [routerLink]="['/login']">
+      <mat-icon>
+        login
+      </mat-icon>
+    </button>
+    <button *ngIf="isLoggedIn()" (click)="logout()" matTooltip="Logout" mat-icon-button aria-label="Logout" color="accent"
+      [routerLink]="['/']">
+      <mat-icon>
+        logout
+      </mat-icon>
+    </button>
+  </div>
+  <div class="mobile-icons" *ngIf="showMobileMenu">
+    <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Show menu" color="accent">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <a mat-menu-item aria-label="About us" color="accent" [routerLink]="['/about-us']">
+        <mat-icon>
+          info
+        </mat-icon>
+        <span>About us</span>
+      </a>
+      <a mat-menu-item *ngIf="isLoggedIn()" aria-label="Url management" color="accent" [routerLink]="['/urls']">
+        <mat-icon>
+          link
+        </mat-icon>
+        <span>Url management</span>
+      </a>
+      <a mat-menu-item *ngIf="isLoggedIn()" aria-label="Profile management" color="accent" [routerLink]="['/profile']">
+        <mat-icon>
+          account_circle
+        </mat-icon>
+        <span>Profile management</span>
+      </a>
+      <button mat-menu-item *ngIf="!isLoggedIn()" aria-label="Login / Register" color="accent"
+        [routerLink]="['/login']">
+        <mat-icon>
+          login
+        </mat-icon>
+        <span>Login / Register</span>
+      </button>
+      <button mat-menu-item *ngIf="isLoggedIn()" (click)="logout()" aria-label="Logout" color="accent"
+        [routerLink]="['/']">
+        <mat-icon>
+          logout
+        </mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  </div>
+</div>

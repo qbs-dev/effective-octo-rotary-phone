@@ -1,0 +1,12 @@
+<form class="input-form" [formGroup]="inputForm">
+  <mat-form-field appearance="outline">
+    <mat-label>Url path</mat-label>
+    <input matInput placeholder="new-deals-2023" [formControl]="urlPathCtrl" required/>
+    <mat-error *ngIf="urlPathCtrl.invalid">{{ getErrorMessage(urlPathCtrl) }} </mat-error>
+  </mat-form-field>
+  <button mat-flat-button [disabled]="urlPathCtrl.invalid" color="accent"
+    (click)="checkIfUrlPathIsAvailable()">
+    <span *ngIf="!isChecking">Apply</span>
+    <mat-icon *ngIf="isChecking"><mat-spinner diameter="18"></mat-spinner></mat-icon>
+  </button>
+</form>

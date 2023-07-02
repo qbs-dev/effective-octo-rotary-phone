@@ -1,0 +1,40 @@
+<div class="spinner-container" *ngIf="isLoading">
+  <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+</div>
+<div class="container" *ngIf="!isLoading">
+  <mat-card>
+    <h1 class="form-title">Editing profile details</h1>
+    <form class="form-container" [formGroup]="editProfileDetailsForm" autocomplete="off">
+      <div class="horizontal-division">
+        <mat-form-field appearance="outline">
+          <mat-label>First name</mat-label>
+          <input matInput placeholder="" [formControl]="firstName" required />
+          <mat-error *ngIf="firstName.invalid">{{ getErrorMessage(firstName) }}</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="horizontal-division">
+        <mat-form-field appearance="outline">
+          <mat-label>Middle name</mat-label>
+          <input matInput placeholder="" [formControl]="middleName" />
+          <mat-error *ngIf="middleName.invalid">{{ getErrorMessage(middleName) }}</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Last name</mat-label>
+          <input matInput placeholder="" [formControl]="lastName" />
+          <mat-error *ngIf="lastName.invalid">{{ getErrorMessage(lastName) }}</mat-error>
+        </mat-form-field>
+      </div>
+
+      <mat-dialog-actions class="horizontal-division confirm-container">
+        <button class="submit" mat-raised-button color="primary" [disabled]="!this.editProfileDetailsForm.valid"
+          (click)="sendForm()">
+          {{ 'Save' | uppercase }}
+        </button>
+        <button class="submit" mat-raised-button mat-dialog-close color="primary">
+          {{ 'Cancel' | uppercase }}
+        </button>
+      </mat-dialog-actions>
+    </form>
+    <p></p>
+  </mat-card>
+</div>
