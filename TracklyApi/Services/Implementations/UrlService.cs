@@ -169,47 +169,80 @@ public class UrlService : IUrlService
     public async Task<string> GetCountryByIpAddressAsync(string ipAddress)
     {
         _logger.LogInformation($"Getting country code for {ipAddress}");
-        var httpClient = _httpClientFactory.CreateClient("Ip2Geo");
-        var httpResponse = await httpClient.GetAsync($"ip/{ipAddress}");
 
-        string countryCode = httpResponse.IsSuccessStatusCode ?
-            (await httpResponse.Content.ReadFromJsonAsync<string>() ?? "0") :
-            "0";
+        try
+        {
+            var httpClient = _httpClientFactory.CreateClient("Ip2Geo");
+            _logger.LogDebug($"Sending request to Ip2GeoApi endpoint");
+            var httpResponse = await httpClient.GetAsync($"ip/{ipAddress}");
 
-        _logger.LogInformation($"{ipAddress} - {countryCode}");
-        return countryCode;
+            _logger.LogDebug($"Got response from Ip2GeoApi: {httpResponse.IsSuccessStatusCode}");
+            string countryCode = httpResponse.IsSuccessStatusCode ?
+                (await httpResponse.Content.ReadFromJsonAsync<string>() ?? "ZZ") :
+                "ZZ";
+
+            _logger.LogInformation($"{ipAddress} - {countryCode}");
+            return countryCode;
+        }
+        catch
+        {
+            _logger.LogError($"Cant get country code from Ip2GeoApi. Falling back to ${ipAddress} - ZZ");
+            return "ZZ";
+        }
+
     }
 
-    public async Task<UrlDto?> GetUrlByPathAsync(string urlPath)
+    public async Task<ManagedUrl?> GetUrlByPathAsync(string urlPath, bool isActiveOnly = false)
     {
-        var managedUrl = await _context.ManagedUrls
-            .Where(x => x.IsActive == true && EF.Functions.ILike(x.NewPath, urlPath))
+        var managedUrlContext = isActiveOnly ?
+        _context.ManagedUrls.Where(x => x.IsActive == true) :
+        _context.ManagedUrls;
+
+        var managedUrl = await managedUrlContext
+            .Where(x => EF.Functions.ILike(x.NewPath, urlPath))
             .FirstOrDefaultAsync();
-        return managedUrl != null ? _mapper.Map<UrlDto>(managedUrl) : null;
+        return managedUrl;
+    }
+
+
+    public async Task<Result<UrlDto>> FindUrlByPathAsync(string urlPath)
+    {
+        var managedUrl = await this.GetUrlByPathAsync(urlPath);
+        if (managedUrl == null)
+            return Result.NotFound();
+        return _mapper.Map<UrlDto>(managedUrl);
     }
 
     public async Task<Result<RedirectResultDto>> PerformRedirectAsync(RedirectRequestDto redirectRequest)
     {
         DateTime visitDate = DateTime.UtcNow;
+        _logger.LogInformation($"Performing redirect on path:{redirectRequest.Path}, ip:{redirectRequest.IpAddressString}");
 
         var validationResult = _redirectRequestValidator.Validate(redirectRequest);
         if (!validationResult.IsValid)
             return Result.Error(validationResult.ToString(", "));
 
         IPAddress ipAddress = IPAddress.Parse(redirectRequest.IpAddressString);
+        string countryCode = await this.GetCountryByIpAddressAsync(redirectRequest.IpAddressString);
 
-        var managedUrl = await this.GetUrlByPathAsync(redirectRequest.Path);
+        var managedUrl = await this.GetUrlByPathAsync(redirectRequest.Path, true);
         if (managedUrl == null)
+        {
             return Result.NotFound();
+        }
 
+
+        managedUrl.TotalClicks++;
         UrlVisit newVisit = new UrlVisit
         {
             Url = managedUrl.Id,
             VisitTimestamp = visitDate,
-            IpAddress = ipAddress
+            IpAddress = ipAddress,
+            CountryCode = countryCode
         };
 
         _context.UrlVisits.Add(newVisit);
+        _context.ManagedUrls.Update(managedUrl);
 
         var changedRows = await _context.SaveChangesAsync();
         if (changedRows > 0)

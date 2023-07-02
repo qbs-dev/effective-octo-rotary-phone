@@ -36,9 +36,9 @@ public class Ip2GeoService
         IPAddress? ipAddress;
         if (!IPAddress.TryParse(ipAddressString, out ipAddress))
         {
+            _logger.LogWarning($"Ip address {ipAddressString} is invalid");
             return "";
         }
-
 
         var countryCode = await _context.Countries
             .Where(x => x.IpRange.Contains(ipAddress))

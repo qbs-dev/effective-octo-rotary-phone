@@ -109,4 +109,11 @@ public class UrlsController : ControllerBase
     {
         return this.ToActionResult(await _urlService.DeleteUrlAsync(userId, urlId));
     }
+
+    [Authorize(Policy = "CheckUserId")]
+    [HttpGet("find/{urlPath}")]
+    public async Task<ActionResult<UrlDto>> FindUrlByPath(int userId, string urlPath)
+    {
+        return this.ToActionResult(await _urlService.FindUrlByPathAsync(urlPath));
+    }
 }

@@ -3,6 +3,7 @@ using Sieve.Models;
 using TracklyApi.Dtos;
 using TracklyApi.Dtos.Url;
 using TracklyApi.Dtos.Url.Stats;
+using TracklyApi.Entities;
 
 namespace TracklyApi.Services;
 public interface IUrlService
@@ -16,6 +17,7 @@ public interface IUrlService
     public Task<Result<UrlDto>> EditUrlDetailsAsync(int userId, UrlEditRequestDto editUrlRequest);
     public Task<Result<MessageResponseDto>> DeleteUrlAsync(int userId, long urlId);
     public Task<string> GetCountryByIpAddressAsync(string ipAddress);
-    public Task<UrlDto?> GetUrlByPathAsync(string urlPath);
+    public Task<ManagedUrl?> GetUrlByPathAsync(string urlPath, bool isActiveOnly);
+    public Task<Result<UrlDto>> FindUrlByPathAsync(string urlPath);
     public Task<Result<RedirectResultDto>> PerformRedirectAsync(RedirectRequestDto redirectRequest);
 }

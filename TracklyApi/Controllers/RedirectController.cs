@@ -4,7 +4,6 @@ using TracklyApi.Dtos.Url;
 using TracklyApi.Services;
 
 namespace TracklyApi.Controllers;
-[Route("")]
 [ApiController]
 public class RedirectController : ControllerBase
 {
