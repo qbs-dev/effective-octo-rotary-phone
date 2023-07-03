@@ -28,10 +28,12 @@ export class EditUrlDialogComponent {
   isAdding: boolean = false;
 
   editUrlForm: FormGroup = null!;
+  deleteUrlForm: FormGroup = null!;
   getErrorMessage = getErrorMessage;
 
   id: number = 0;
   isDeleteConfirmed = new FormControl<boolean>(false);
+  urlPathInput: string = '';
 
   newPath = new FormControl('', [
     Validators.required,
@@ -63,11 +65,14 @@ export class EditUrlDialogComponent {
 
   buildForm(): void {
     this.editUrlForm = this.formBuilder.group({
-      isDeleteConfirmed: this.isDeleteConfirmed,
       newPath: this.newPath,
       targetUrl: this.targetUrl,
       isActive: this.isActive,
       description: this.description,
+    });
+
+    this.deleteUrlForm = this.formBuilder.group({
+      isDeleteConfirmed: this.isDeleteConfirmed,
     });
 
     if (this.data.isAdding) {
@@ -82,6 +87,8 @@ export class EditUrlDialogComponent {
           isActive: url.isActive,
           description: url.description,
         });
+
+        this.urlPathInput = url.newPath;
       }
     }
   }

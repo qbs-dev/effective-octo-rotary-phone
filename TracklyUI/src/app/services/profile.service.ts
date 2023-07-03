@@ -12,30 +12,39 @@ const httpOptions = {
 };
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-export class ProfileService
-{
-  constructor(private http: HttpClient) { }
+export class ProfileService {
+  constructor(private http: HttpClient) {}
 
-  register(regReq: RegisterRequest): Observable<MessageResponse>
-  {
+  register(regReq: RegisterRequest): Observable<MessageResponse> {
     regReq.password = bytesToHex(sha3_256(regReq.password));
-    return this.http.post<MessageResponse>(endpoint + '/register', regReq, httpOptions);
+    return this.http.post<MessageResponse>(
+      endpoint + '/register',
+      regReq,
+      httpOptions
+    );
   }
 
-  getProfileDetails(userId: number): Observable<Profile>
-  {
+  getProfileDetails(userId: number): Observable<Profile> {
     return this.http.get<Profile>(endpoint + `/${userId}`, httpOptions);
   }
 
-  editProfileDetails(userId: number, editUserDetails: ProfileBase): Observable<Profile>
-  {
-    return this.http.post<Profile>(endpoint + `/${userId}/edit`, editUserDetails, httpOptions);
+  editProfileDetails(
+    userId: number,
+    editUserDetails: ProfileBase
+  ): Observable<Profile> {
+    return this.http.post<Profile>(
+      endpoint + `/${userId}/edit`,
+      editUserDetails,
+      httpOptions
+    );
   }
 
-  deleteProfile(userId: number): Observable<MessageResponse>
-  {
-    return this.http.delete<MessageResponse>(endpoint + `/${userId}`, httpOptions);
+  deleteProfile(userId: number): Observable<MessageResponse> {
+    return this.http.delete<MessageResponse>(
+      endpoint + `/${userId}`,
+      httpOptions
+    );
   }
 }

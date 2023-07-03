@@ -1,0 +1,31 @@
+<div class="container">
+  <div class="page-header">
+    <h1>Url details</h1>
+  </div>
+  <div class="details-container">
+    <div class="spinner-container" *ngIf="isLoading"><mat-progress-spinner mode="indeterminate"></mat-progress-spinner></div>
+    <div class="url-container" *ngIf="!isLoading && !isError">
+      <div class="details-container">
+        <h1> {{url.newPath}} </h1>
+        <span>Target url: {{url.targetUrl}}</span>
+        <span>Url status: {{url.isActive ? 'active' : 'inactive'}}</span>
+        <p>Description: {{url.description.length > 0 ? url.description : 'none'}}</p>
+        <span>Total clicks: {{url.totalClicks}}</span>
+          <div class="buttons-container">
+            <button mat-flat-button color="accent" (click)="openEditUrlDialog()">
+              <mat-icon>edit</mat-icon>Edit url details
+            </button>
+            <button mat-flat-button color="accent" [routerLink]="['/urls/' + url.id + '/visits']">
+              <mat-icon>visibility</mat-icon>View individual visits
+            </button>
+            <button mat-flat-button color="accent" [routerLink]="['/urls/' + url.id + '/stats']">
+              <mat-icon>analytics</mat-icon>View url statistics
+            </button>
+          </div>
+      </div>
+    </div>
+    <mat-card class="info-card fail" *ngIf="!isLoading && isError">
+      <span>Error: {{errorText}}</span>
+    </mat-card>
+  </div>
+</div>

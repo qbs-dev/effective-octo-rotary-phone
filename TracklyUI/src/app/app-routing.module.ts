@@ -8,14 +8,29 @@ import { AboutUsComponent } from './components/about-us/about-us.component';
 import { PageForbiddenComponent } from './components/page-forbidden/page-forbidden.component';
 import { hasLoggedInAuthGuard } from './helpers/auth.guard';
 import { ManageUrlsComponent } from './components/manage-urls/manage-urls.component';
+import { UrlDetailsComponent } from './components/url-details/url-details.component';
+import { UrlVisitsComponent } from './components/url-visits/url-visits.component';
+import { UrlStatsComponent } from './components/url-stats/url-stats.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'urls', component: ManageUrlsComponent },
-  // { path: 'urls/:url-id', component: UrlDetailsComponent, canActivate: [hasLoggedInAuthGuard()] },
-  // { path: 'urls/:url-id:/visits', component: UrlVisitsComponent, canActivate: [hasLoggedInAuthGuard()] },
-  // { path: 'urls/:url-id:/stats', component: UrlStatsComponent, canActivate: [hasLoggedInAuthGuard()] },
+  {
+    path: 'urls/:url-id',
+    component: UrlDetailsComponent,
+    canActivate: [hasLoggedInAuthGuard()],
+  },
+  {
+    path: 'urls/:url-id:/visits',
+    component: UrlVisitsComponent,
+    canActivate: [hasLoggedInAuthGuard()],
+  },
+  {
+    path: 'urls/:url-id:/stats',
+    component: UrlStatsComponent,
+    canActivate: [hasLoggedInAuthGuard()],
+  },
   { path: 'about-us', component: AboutUsComponent },
   {
     path: 'profile',

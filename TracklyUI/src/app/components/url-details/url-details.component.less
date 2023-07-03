@@ -1,0 +1,68 @@
+.container {
+  min-height: 85vh;
+  min-width: 95vw;
+  max-width: 95vw;
+}
+
+.page-header {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  padding: 1rem;
+}
+
+.details-container {
+  display: flex;
+  height: 100%;
+  flex-flow: wrap;
+  flex: 1 1 auto;
+  justify-content: center;
+  align-items: center;
+}
+
+.url-container {
+  display: flex;
+  flex-flow: wrap;
+  flex: 1 1 auto;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 4vh;
+}
+
+.buttons-container {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.details-container {
+  display: flex;
+  flex-flow: column wrap;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.buttons-container>button {
+  margin: 0.5rem;
+}
+
+.info-card {
+  display: table;
+  min-width: 40vw;
+  min-height: 10vh;
+  margin: 2rem;
+  text-align: center;
+  text-anchor: middle;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.info-card>span {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.info-card.fail {
+  background-color: #ffb9b9;
+}

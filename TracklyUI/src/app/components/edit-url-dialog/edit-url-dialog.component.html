@@ -14,7 +14,7 @@
         </div>
       </div>
       <div class="horizontal-division">
-        <app-url-path-input class="form-input" (UrlPathSelectEvent)="setUrlPath($event)">
+        <app-url-path-input class="form-input" [urlPath]="urlPathInput" (UrlPathSelectEvent)="setUrlPath($event)">
         </app-url-path-input>
         <mat-form-field class="form-input" appearance="outline">
           <mat-label>Target url</mat-label>
@@ -31,13 +31,13 @@
       </div>
 
       <mat-dialog-actions class="horizontal-division confirm-container">
-        <div class="delete-action" *ngIf="!isAdding">
-          <mat-checkbox [formControl]="isDeleteConfirmed"></mat-checkbox>
-          <button class="submit" [disabled]="!isDeleteConfirmed.value" mat-raised-button color="warn"
-            (click)="deleteUrl()">
-            {{ 'Delete' | uppercase }}
-          </button>
-        </div>
+        <form class="delete-action" *ngIf="!isAdding" [formGroup]="deleteUrlForm">
+            <mat-checkbox [formControl]="isDeleteConfirmed"></mat-checkbox>
+            <button class="submit" [disabled]="!isDeleteConfirmed.value" mat-raised-button color="warn"
+              (click)="deleteUrl()">
+              {{ 'Delete' | uppercase }}
+            </button>
+        </form>
         <button class="submit" mat-raised-button color="primary" [disabled]="!this.editUrlForm.valid"
           (click)="sendForm()">
           {{ (isAdding ? 'Save' : 'Save') | uppercase }}

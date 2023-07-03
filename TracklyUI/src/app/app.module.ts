@@ -24,6 +24,9 @@ import { PageForbiddenComponent } from './components/page-forbidden/page-forbidd
 import { ManageUrlsComponent } from './components/manage-urls/manage-urls.component';
 import { EditUrlDialogComponent } from './components/edit-url-dialog/edit-url-dialog.component';
 import { UrlPathInputComponent } from './components/url-path-input/url-path-input.component';
+import { UrlDetailsComponent } from './components/url-details/url-details.component';
+import { UrlVisitsComponent } from './components/url-visits/url-visits.component';
+import { UrlStatsComponent } from './components/url-stats/url-stats.component';
 
 @NgModule({
   declarations: [
@@ -43,6 +46,9 @@ import { UrlPathInputComponent } from './components/url-path-input/url-path-inpu
     ManageUrlsComponent,
     UrlPathInputComponent,
     EditUrlDialogComponent,
+    UrlDetailsComponent,
+    UrlVisitsComponent,
+    UrlStatsComponent,
   ],
   imports: [
     BrowserModule,

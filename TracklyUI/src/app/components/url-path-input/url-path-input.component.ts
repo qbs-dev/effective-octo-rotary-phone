@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { HttpErrorResponseService } from 'src/app/services/http-error-response.service';
 import { SnackNotifyComponent } from '../snack-notify/snack-notify.component';
@@ -15,7 +22,8 @@ import {
   templateUrl: './url-path-input.component.html',
   styleUrls: ['./url-path-input.component.less'],
 })
-export class UrlPathInputComponent {
+export class UrlPathInputComponent implements OnChanges {
+  @Input() urlPath = '';
   @Output() UrlPathSelectEvent = new EventEmitter<string | null>();
   getErrorMessage = getErrorMessage;
   constructor(
@@ -36,6 +44,14 @@ export class UrlPathInputComponent {
     createUrlPathValidator(),
   ]);
   isChecking = false;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const urlPathChg = changes['urlPath'];
+    if (urlPathChg) {
+      this.urlPathCtrl.setValue(urlPathChg.currentValue);
+      this.UrlPathSelectEvent.emit(urlPathChg.currentValue);
+    }
+  }
 
   checkIfUrlPathIsAvailable() {
     this.UrlPathSelectEvent.emit(null);

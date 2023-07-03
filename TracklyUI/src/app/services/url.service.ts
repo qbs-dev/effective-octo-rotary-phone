@@ -107,7 +107,7 @@ export class UrlService {
   }
 
   deleteUrl(urlId: number): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(
+    return this.http.delete<MessageResponse>(
       endpoint + `/${urlId}?userId=${this.authService.getUserId()}`,
       httpOptions
     );
