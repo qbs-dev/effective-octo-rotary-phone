@@ -51,6 +51,7 @@ public class UrlService : IUrlService
 
         var newUrl = _mapper.Map<UrlEditRequestDto, ManagedUrl>(newUrlRequest);
         newUrl.User = userId;
+        newUrl.CreatedAt = DateTime.UtcNow;
 
         _context.ManagedUrls.Add(newUrl);
         var changedRows = await _context.SaveChangesAsync();
