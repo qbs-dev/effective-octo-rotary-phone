@@ -9,6 +9,7 @@
         <h1> {{url.newPath}} </h1>
         <span>Target url: {{url.targetUrl}}</span>
         <span>Url status: {{url.isActive ? 'active' : 'inactive'}}</span>
+        <span>Creation date: {{url.createdAt | date : 'dd.MM.YYYY HH:mm' : '3'}}</span>
         <p>Description: {{url.description.length > 0 ? url.description : 'none'}}</p>
         <span>Total clicks: {{url.totalClicks}}</span>
           <div class="buttons-container">

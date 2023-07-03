@@ -22,12 +22,12 @@ const routes: Routes = [
     canActivate: [hasLoggedInAuthGuard()],
   },
   {
-    path: 'urls/:url-id:/visits',
+    path: 'urls/:url-id/visits',
     component: UrlVisitsComponent,
     canActivate: [hasLoggedInAuthGuard()],
   },
   {
-    path: 'urls/:url-id:/stats',
+    path: 'urls/:url-id/stats',
     component: UrlStatsComponent,
     canActivate: [hasLoggedInAuthGuard()],
   },

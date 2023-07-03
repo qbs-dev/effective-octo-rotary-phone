@@ -35,6 +35,7 @@
         <div mat-subheader>Managed Urls</div>
         <mat-list-item  *ngFor="let url of urls |
                           paginate : {
+                            id: 'server',
                           itemsPerPage: paginationOpts.pageSize,
                           currentPage: paginationOpts.pageIndex,
                           totalItems: paginationOpts.totalItems
