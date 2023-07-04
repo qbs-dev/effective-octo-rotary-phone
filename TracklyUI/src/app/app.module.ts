@@ -27,6 +27,7 @@ import { UrlPathInputComponent } from './components/url-path-input/url-path-inpu
 import { UrlDetailsComponent } from './components/url-details/url-details.component';
 import { UrlVisitsComponent } from './components/url-visits/url-visits.component';
 import { UrlStatsComponent } from './components/url-stats/url-stats.component';
+import { PieChartComponent } from './components/pie-chart/pie-chart.component';
 
 @NgModule({
   declarations: [
@@ -49,6 +50,7 @@ import { UrlStatsComponent } from './components/url-stats/url-stats.component';
     UrlDetailsComponent,
     UrlVisitsComponent,
     UrlStatsComponent,
+    PieChartComponent,
   ],
   imports: [
     BrowserModule,

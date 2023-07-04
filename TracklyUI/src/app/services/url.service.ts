@@ -56,31 +56,33 @@ export class UrlService {
 
   getUrlVisitsByCountry(
     urlId: number,
-    startDate: Date,
-    endDate: Date,
-    limit: number
+    startDate?: Date,
+    endDate?: Date,
+    limit?: number
   ): Observable<UrlStatsResponse<VisitsByCountry>> {
     return this.http.get<UrlStatsResponse<VisitsByCountry>>(
       endpoint +
         `/${urlId}/stats/country` +
         `?userId=${this.authService.getUserId()}` +
-        `&startDateUtc=${startDate}&endDateUtc=${endDate}` +
-        `&limit=${limit}`
+        (startDate ? `&startDateUtc=${startDate}` : '') +
+        (endDate ? `&endDateUtc=${endDate}` : '') +
+        (limit ? `&limit=${limit}` : '')
     );
   }
 
   getUrlVisitsByIpAddress(
     urlId: number,
-    startDate: Date,
-    endDate: Date,
-    limit: number
+    startDate?: Date,
+    endDate?: Date,
+    limit?: number
   ): Observable<UrlStatsResponse<VisitsByIpAddress>> {
     return this.http.get<UrlStatsResponse<VisitsByIpAddress>>(
       endpoint +
         `/${urlId}/stats/ip-address` +
         `?userId=${this.authService.getUserId()}` +
-        `&startDateUtc=${startDate}&endDateUtc=${endDate}` +
-        `&limit=${limit}`
+        (startDate ? `&startDateUtc=${startDate}` : '') +
+        (endDate ? `&endDateUtc=${endDate}` : '') +
+        (limit ? `&limit=${limit}` : '')
     );
   }
 
